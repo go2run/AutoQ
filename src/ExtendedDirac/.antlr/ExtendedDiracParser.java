@@ -104,7 +104,7 @@ public class ExtendedDiracParser extends Parser {
 	        return std::all_of(text.begin(), text.end(), [](char c) { return '0' <= c && c <= '9'; });
 	    }
 	    bool isNonZero(const std::string& text) {
-	        return areAllDigits(text) && std::stoi(text) != 0;
+	        return areAllDigits(text) && std::any_of(text.begin(), text.end(), [](char c) { return c != '0'; });
 	    }
 	    bool isALowercaseLetter(const std::string& text) {
 	        return text.length() == 1 && 'a' <= text.at(0) && text.at(0) <= 'z';

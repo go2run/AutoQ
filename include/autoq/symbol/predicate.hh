@@ -27,7 +27,7 @@ struct AUTOQ::Symbol::Predicate : std::string {
         if (is_leaf_v) {
             THROW_AUTOQ_ERROR("Leaf symbols do not have qubit().");
         }
-        return boost::multiprecision::cpp_int(std::stoi(*this));
+        return boost::multiprecision::cpp_int(*this);
     }
     Predicate operator*(const Predicate &o) const { // actually performs "or" operation
         if (!mulmap.empty()) {

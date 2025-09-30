@@ -1908,8 +1908,8 @@ private:
         } else if (ctx->var != nullptr) {
             const auto &text = ctx->var->getText();
             if (std::all_of(text.begin(), text.end(), [](char c) { return '0' <= c && c <= '9'; })) {
-                if (mode == CONCRETE_COMPLEX) return Complex(std::stoi(text));
-                if (mode == SYMBOLIC_COMPLEX) return AUTOQ::Complex::SymbolicComplex::MySymbolicComplexConstructor(Complex(std::stoi(text)));
+                if (mode == CONCRETE_COMPLEX) return Complex(boost::multiprecision::cpp_int(text));
+                if (mode == SYMBOLIC_COMPLEX) return AUTOQ::Complex::SymbolicComplex::MySymbolicComplexConstructor(Complex(boost::multiprecision::cpp_int(text)));
                 THROW_AUTOQ_ERROR("Unsupported mode!");
             } else {
                 auto it = constants.find(text);
