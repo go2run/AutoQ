@@ -26,7 +26,7 @@ if [ "$OS_TYPE" = "Linux" ]; then
         apt install libboost-regex-dev
         ;;
       *)
-        echo "configure.sh only support ubuntu|debian"
+        echo "install-dependencies.sh only support ubuntu|debian"
         exit 1
         ;;
     esac

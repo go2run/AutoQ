@@ -29,7 +29,7 @@ Please see the introductory [video](https://www.youtube.com/watch?v=1pO6bBvEaLM)
 
 ## Installation and Compilation
 
-Currently, for Linux (Ubuntu/Debian), macOS, and WSL2, the dependency of AutoQ can be built with the command `./configure.sh`. After the configuration, please run the following command.
+Currently, for Linux (Ubuntu/Debian), macOS, and WSL2, the dependency of AutoQ can be built with the command `./install-dependencies.sh`. After the configuration, please run the following command.
 ```
 make release
 make test
