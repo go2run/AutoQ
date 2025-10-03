@@ -24,6 +24,7 @@ if [ "$OS_TYPE" = "Linux" ]; then
         apt install libboost-filesystem-dev
         apt install libboost-test-dev
         apt install libboost-regex-dev
+        apt install libantlr4-runtime-dev
         ;;
       *)
         echo "install-dependencies.sh only support ubuntu|debian"
@@ -49,6 +50,7 @@ elif [ "$OS_TYPE" = "Darwin" ]; then
     brew install make
     brew install cmake
     brew install boost
+    brew install antlr4-cpp-runtime
 else
   echo "NOT SUPPORTED OS: $OS_TYPE"
   #exit 1
