@@ -31,12 +31,12 @@ Please see the introductory [video](https://www.youtube.com/watch?v=1pO6bBvEaLM)
 
 Currently, for Linux (Ubuntu/Debian), macOS, and WSL2, the dependency of AutoQ can be built with the command `./install-dependencies.sh`. After the configuration, please run the following command.
 ```
-make release
+make
 make test
 ```
-The first command `make release` compiles the source code with compiler optimizations enabled, while the second command `make test` runs several unit tests to verify the correctness of the implementation. Under normal circumstances, you should see 12 green check marks on the `Commits` page for the latest commit. This indicates that the continuous integration (CI) workflow in GitHub Actions has verified that both `make debug` and `make release` produce no errors and that `make test` passes successfully on Ubuntu, macOS, and WSL2.
+The first command `make` compiles the source code with compiler optimizations enabled, while the second command `make test` runs several unit tests to verify the correctness of the implementation. Under normal circumstances, you should see 12 green check marks on the `Commits` page for the latest commit. This indicates that the continuous integration (CI) workflow in GitHub Actions has verified that both `make` and `make debug` produce no errors and that `make test` passes successfully on Ubuntu, macOS, and WSL2.
 
-If you need to compile the library for debugging, you can replace `make release` with `make debug`.
+If you need to compile the library for debugging, you can replace `make` with `make debug`.
 
 ---
 
