@@ -37,7 +37,7 @@ jobs:
         name: AutoQ-debug-ubuntu
     # - run: pwd
     # - run: ls -a
-    - run: cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./explicit_tree_aut_test
+    - run: cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH-} ./explicit_tree_aut_test
 
   build-release-ubuntu:
     runs-on: ubuntu-latest
@@ -67,12 +67,16 @@ jobs:
         name: AutoQ-release-ubuntu
     # - run: pwd
     # - run: ls -a
-    - run: cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./explicit_tree_aut_test
+    - run: cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH-} ./explicit_tree_aut_test
 
   build-debug-wsl:
     runs-on: windows-latest
     steps:
-      - uses: vedantmgoyal9/setup-wsl2@main
+      - uses: Vampire/setup-wsl@v6
+        with:
+          distribution: Ubuntu-24.04
+          wsl-version: 2
+          # update: true
       - uses: actions/checkout@v4
       - run: |
           sudo apt-get update && sudo apt-get upgrade -y
@@ -82,9 +86,10 @@ jobs:
           cp /usr/lib/x86_64-linux-gnu/libboost_regex.so.*               build/unit_tests/
           cp libz3.so.*                                                  build/unit_tests/
           cp /usr/lib/x86_64-linux-gnu/libantlr4-runtime.so.*            build/unit_tests/
-        shell: wsl-run {0} # add this to run the commands inside linux
+        shell: wsl-bash {0} # add this to run the commands inside linux
       - run: |
-          wsl -d Ubuntu -e bash -c "tar -czf autoq-debug-wsl.tar.gz Makefile build/ unit_tests/ benchmarks/all/"
+          tar -czf autoq-debug-wsl.tar.gz Makefile build/ unit_tests/ benchmarks/all/
+        shell: wsl-bash {0} # add this to run the commands inside linux
       - uses: actions/upload-artifact@v4.3.5
         with:
           name: AutoQ-debug-wsl
@@ -94,19 +99,27 @@ jobs:
     needs: build-debug-wsl
     runs-on: windows-latest
     steps:
-      - uses: vedantmgoyal9/setup-wsl2@main
+      - uses: Vampire/setup-wsl@v6
+        with:
+          distribution: Ubuntu-24.04
+          wsl-version: 2
+          # update: true
       - uses: actions/download-artifact@v4
         with:
           name: AutoQ-debug-wsl
       - run: |
           tar -xzf autoq-debug-wsl.tar.gz
-          cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./explicit_tree_aut_test
-        shell: wsl-run {0} # add this to run the commands inside linux
+          cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH-} ./explicit_tree_aut_test
+        shell: wsl-bash {0} # add this to run the commands inside linux
 
   build-release-wsl:
     runs-on: windows-latest
     steps:
-      - uses: vedantmgoyal9/setup-wsl2@main
+      - uses: Vampire/setup-wsl@v6
+        with:
+          distribution: Ubuntu-24.04
+          wsl-version: 2
+          # update: true
       - uses: actions/checkout@v4
       - run: |
           sudo apt-get update && sudo apt-get upgrade -y
@@ -116,9 +129,10 @@ jobs:
           cp /usr/lib/x86_64-linux-gnu/libboost_regex.so.*               build/unit_tests/
           cp libz3.so.*                                                  build/unit_tests/
           cp /usr/lib/x86_64-linux-gnu/libantlr4-runtime.so.*            build/unit_tests/
-        shell: wsl-run {0} # add this to run the commands inside linux
+        shell: wsl-bash {0} # add this to run the commands inside linux
       - run: |
-          wsl -d Ubuntu -e bash -c "tar -czf autoq-release-wsl.tar.gz Makefile build/ unit_tests/ benchmarks/all/"
+          tar -czf autoq-release-wsl.tar.gz Makefile build/ unit_tests/ benchmarks/all/
+        shell: wsl-bash {0} # add this to run the commands inside linux
       - uses: actions/upload-artifact@v4.3.5
         with:
           name: AutoQ-release-wsl
@@ -128,14 +142,18 @@ jobs:
     needs: build-release-wsl
     runs-on: windows-latest
     steps:
-      - uses: vedantmgoyal9/setup-wsl2@main
+      - uses: Vampire/setup-wsl@v6
+        with:
+          distribution: Ubuntu-24.04
+          wsl-version: 2
+          # update: true
       - uses: actions/download-artifact@v4
         with:
           name: AutoQ-release-wsl
       - run: |
           tar -xzf autoq-release-wsl.tar.gz
-          cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./explicit_tree_aut_test
-        shell: wsl-run {0} # add this to run the commands inside linux
+          cd build/unit_tests/ && chmod +x ./explicit_tree_aut_test && LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH-} ./explicit_tree_aut_test
+        shell: wsl-bash {0} # add this to run the commands inside linux
 
   build-debug-macos:
     runs-on: macos-latest
