@@ -1,0 +1,18 @@
+{
+    // https://containers.dev/guide/dockerfile
+    "name": "Fedora",
+    "build": {
+        "context": "..",
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack"
+            ]
+        }
+    },
+    "postCreateCommand": "./install-dependencies.sh && make && make test && ./build/cli/autoq -h",
+    "forwardPorts": []
+}
