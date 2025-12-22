@@ -1,8 +1,8 @@
-#include "z3/z3++.h"
-#include "autoq/util/util.hh"
-#include "autoq/util/string.hh"
 #include "autoq/inclusion.hh"
 #include "autoq/aut_description.hh"
+#include "autoq/util/string.hh"
+#include "autoq/util/util.hh"
+#include "z3/z3++.h"
 #include <queue>
 
 template <typename Symbol> bool AUTOQ::Automata<Symbol>::empty() const {
