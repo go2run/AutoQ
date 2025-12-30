@@ -1672,7 +1672,7 @@ template <> bool AUTOQ::TreeAutomata::operator<<=(AUTOQ::TreeAutomata autB) cons
                      for (const auto &desired_symbol : As_symbols_associated_with_Bs_states.at(kv.first))
                         leaf_pairs.insert({desired_symbol, kv.second});
                   }
-                  color_consistent2 = (all_used_colors != 0);// && (all_used_colors_A == all_used_colors);
+                  color_consistent2 = (all_used_colors != 0 && (all_used_colors_A == all_used_colors));
                   /*****************************************/
                   // Build the formula and check its satisfiability.
                   bool                                                        startRatio = false;

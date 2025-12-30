@@ -131,6 +131,7 @@ bool AUTOQ::Automata<Symbol>::execute(const char *filename, std::vector<int> qub
             this->remove_useless(); this->reduce(); I.remove_useless(); I.reduce();
             bool t = (*this <<= I);
             verify &= t;
+            print_aut("C(P).aut:\n");
             if (!t) {
                 AUTOQ_ERROR("[ERROR] C(P) ⊈ I.");
                 fraction_simplification();

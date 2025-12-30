@@ -1851,6 +1851,24 @@ AUTOQ::Parsing::TimbukParser<Symbol, Symbol2>::ReadTwoAutomata(const std::string
          std::tie(autVec, qp /*, autMinus*/) =
              parse_n_extended_diracs<Symbol, Symbol2>(automatonVec, constants, constraints);
       }
+      else if ((boost::algorithm::ends_with(filepathVec[0], ".lsta") ||
+                boost::algorithm::ends_with(filepathVec[0], ".aut")) &&
+               (boost::algorithm::ends_with(filepathVec[1], ".lsta") ||
+                boost::algorithm::ends_with(filepathVec[1], ".aut"))) {
+         bool do_not_throw_term_undefined_error = false;
+         for (size_t i = 0; i < filepathVec.size(); i++) {
+            if (boost::algorithm::ends_with(filepathVec[i], ".lsta"))
+               autVec.push_back(
+                   parse_automaton<Symbol>(automatonVec[i], constants[i], {}, do_not_throw_term_undefined_error));
+            else
+               autVec.push_back(parse_timbuk<Symbol>(automatonVec[i]));
+         }
+         int max_qubits = 0;
+         for (const auto &aut : autVec)
+            max_qubits = std::max(max_qubits, aut.qubitNum);
+         qp.resize(max_qubits + 1);
+         std::iota(qp.begin(), qp.end(), 0);
+      }
       else {
          THROW_AUTOQ_ERROR("The filename extension is not supported.");
       }
