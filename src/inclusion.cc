@@ -96,6 +96,8 @@ const bool inclusion_debug = false;
    AUTOQ_DEBUG(msg)
 
 template <> bool AUTOQ::Automata<AUTOQ::Symbol::Index>::operator<=(const Automata<AUTOQ::Symbol::Index> &autB) const {
+   AUTOQ_DEBUG("----------------------------------------- Version 2 -----------------------------------------");
+   AUTOQ_DEBUG("---------------------------------------------------------------------------------------------");
    auto start_include = std::chrono::steady_clock::now();
 
    // Preparation: Transform transitions into the new data structure.
@@ -139,8 +141,10 @@ template <> bool AUTOQ::Automata<AUTOQ::Symbol::Index>::operator<=(const Automat
       bfs.push(vertex);
       AUTOQ_DEBUG("CREATE SOURCE VERTEX: " << AUTOQ::Util::Convert::ToString(vertex));
    }
+
    // Start the BFS!
    while (!bfs.empty()) {
+      AUTOQ_DEBUG("SOURCE VERTEX COUNT: " << bfs.size());
       vertex = bfs.front();
       AUTOQ_DEBUG("EXTRACT VERTEX: " << AUTOQ::Util::Convert::ToString(vertex));
       bfs.pop();
@@ -160,7 +164,7 @@ template <> bool AUTOQ::Automata<AUTOQ::Symbol::Index>::operator<=(const Automat
          // Check if the current combination is color-consistent.
          // If not, skip this one and continue to the next combination.
          unsigned all_used_colors_A = ~0;
-         bool     color_consistent  = true;
+         bool     color_consistent1 = true;
          // Check if there is no any children state derived from the current combination.
          // If it is true, then we shall not create new vertices derived from this one,
          // and we shall judge whether the inclusion does not hold right now.
@@ -174,7 +178,7 @@ template <> bool AUTOQ::Automata<AUTOQ::Symbol::Index>::operator<=(const Automat
             if (kv.second->second.size() > 0)
                is_leaf_vertex = false;
          }
-         color_consistent = (all_used_colors_A != 0);
+         color_consistent1 = (all_used_colors_A != 0);
          // for (const auto &qA_c : possible_colors_for_qA) { // for each fixed qA
          //     int counter = 0;
          //     for (const auto &color : qA_c.second) { // loop through all possible colors
@@ -189,8 +193,8 @@ template <> bool AUTOQ::Automata<AUTOQ::Symbol::Index>::operator<=(const Automat
          // }
          /*************************************************************************/
          // Only pick this combination of A's transitions if it is color-consistent.
-         AUTOQ_DEBUG("ARE " << (color_consistent ? "" : "NOT ") << "COLOR-CONSISTENT.");
-         if (color_consistent) {
+         AUTOQ_DEBUG("ARE " << (color_consistent1 ? "" : "NOT ") << "COLOR-CONSISTENT.");
+         if (color_consistent1) {
             Vertex vertex2;
             bool   vertex_fail = true; // is_leaf_vertex
             for (const auto &cell : vertex) {
@@ -266,16 +270,16 @@ template <> bool AUTOQ::Automata<AUTOQ::Symbol::Index>::operator<=(const Automat
                   // Check if the current combination is color-consistent.
                   // If not, simply construct the unique cell without B's states!
                   bool     color_consistent2 = true;
-                  unsigned all_used_colors   = ~0;
+                  unsigned all_used_colors_B = ~0;
                   AUTOQ_DEBUG("B's CURRENTLY CONSIDERED TRANSITIONS: ");
                   for (const auto &kv : B_transition_combinations) { // Print the current combination
                      AUTOQ_DEBUG(AUTOQ::Util::Convert::ToString(kv.second.begin()->first) + "[" +
                                  AUTOQ::Util::Convert::ToString(kv.second.begin()->second->first) + "]" +
                                  AUTOQ::Util::Convert::ToString(kv.second.begin()->second->second) + " -> " +
                                  AUTOQ::Util::Convert::ToString(kv.first));
-                     all_used_colors &= kv.second.begin()->second->first;
+                     all_used_colors_B &= kv.second.begin()->second->first;
                   }
-                  color_consistent2 = (all_used_colors != 0);
+                  color_consistent2 = (all_used_colors_B != 0);
                   // for (const auto &qB_c : possible_colors_for_qB) { // for each fixed qB
                   //     int counter = 0;
                   //     for (const auto &color : qB_c.second) { // loop through all possible colors
@@ -293,7 +297,10 @@ template <> bool AUTOQ::Automata<AUTOQ::Symbol::Index>::operator<=(const Automat
                   /*************************************************************/
                   AUTOQ_DEBUG("ARE " << (color_consistent2 ? "" : "NOT ") << "COLOR-CONSISTENT.");
                   // If consistent, equivalize the two input vectors of each equivalent transition pair.
-                  if (color_consistent2) {
+                  bool color_consistenAB = (all_used_colors_B == all_used_colors_A);
+                  AUTOQ_DEBUG("ARE " << (color_consistenAB ? "" : "NOT ") << "AB COLOR-CONSISTENT.");
+                  // color_consistenAB = color_consistent2;
+                  if (color_consistent2 && color_consistenAB) {
                      for (const auto &kv : A_transition_combinations) {
                         const auto &qA  = kv.first;
                         const auto &inA = kv.second->second; // the current input vector for qA
@@ -904,6 +911,9 @@ bool call_smt_solver(const std::string &var_defs, const std::string &assertion) 
 
 bool scaled_inclusion_with_or_without_renaming(AUTOQ::SymbolicAutomata autA, AUTOQ::SymbolicAutomata autB,
                                                bool renaming) {
+   AUTOQ_DEBUG("----------------------------------------- scaled_inclusion_with_or_without_renaming "
+               "-----------------------------------------");
+   AUTOQ_DEBUG("---------------------------------------------------------------------------------------------");
    if (AUTOQ::String::trim(autA.constraints).empty())
       autA.constraints = "true";
    if (AUTOQ::String::trim(autB.constraints).empty())
@@ -1436,6 +1446,8 @@ template <> bool AUTOQ::SymbolicAutomata::operator_scaled_inclusion_with_renamin
 }
 
 template <> bool AUTOQ::TreeAutomata::operator<<=(AUTOQ::TreeAutomata autB) const {
+   AUTOQ_DEBUG("----------------------------------------- Version 3 -----------------------------------------");
+   AUTOQ_DEBUG("---------------------------------------------------------------------------------------------");
    const auto &autA   = *this;
    autB               = autB.operator||(AUTOQ::TreeAutomata::zero_amplitude(autB.qubitNum));
    // autA.print_aut("R:\n"); autB.print_aut("Q:\n");
@@ -1512,22 +1524,22 @@ template <> bool AUTOQ::TreeAutomata::operator<<=(AUTOQ::TreeAutomata autB) cons
          /************************************************************/
          // Check if the current combination is color-consistent.
          // If not, skip this one and continue to the next combination.
-         unsigned all_used_colors  = ~0;
-         bool     color_consistent = true;
+         unsigned all_used_colors_A = ~0;
+         bool     color_consistent  = true;
          // Check if there is no any children state derived from the current combination.
          // If it is true, then we shall not create new vertices derived from this one,
          // and we shall judge whether the inclusion does not hold right now.
-         bool     is_leaf_vertex   = true;
+         bool     is_leaf_vertex    = true;
          INCLUSION_DEBUG("A's CURRENTLY CONSIDERED TRANSITIONS: ");
          for (const auto &kv : A_transition_combinations) { // Print the current combination
             INCLUSION_DEBUG(AUTOQ::Util::Convert::ToString(kv.second->first) +
                             AUTOQ::Util::Convert::ToString(kv.second->second) + " -> " +
                             AUTOQ::Util::Convert::ToString(kv.first));
-            all_used_colors &= kv.second->first.tag();
+            all_used_colors_A &= kv.second->first.tag();
             if (kv.second->second.size() > 0)
                is_leaf_vertex = false;
          }
-         color_consistent = (all_used_colors != 0);
+         color_consistent = (all_used_colors_A != 0);
          // for (const auto &qA_c : possible_colors_for_qA) { // for each fixed qA
          //     int counter = 0;
          //     for (const auto &color : qA_c.second) { // loop through all possible colors
@@ -1660,7 +1672,7 @@ template <> bool AUTOQ::TreeAutomata::operator<<=(AUTOQ::TreeAutomata autB) cons
                      for (const auto &desired_symbol : As_symbols_associated_with_Bs_states.at(kv.first))
                         leaf_pairs.insert({desired_symbol, kv.second});
                   }
-                  color_consistent2                                                      = (all_used_colors != 0);
+                  color_consistent2 = (all_used_colors != 0);// && (all_used_colors_A == all_used_colors);
                   /*****************************************/
                   // Build the formula and check its satisfiability.
                   bool                                                        startRatio = false;
