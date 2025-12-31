@@ -240,6 +240,8 @@ bool AUTOQ::Automata<Symbol>::execute(const char *filename, std::vector<int> qub
         stop_execute = std::chrono::steady_clock::now();
     }
     qasm.close();
+    this->print_aut("print_aut:\n");
+    this->print_language("print_language:\n");
     return verify;
 }
 
