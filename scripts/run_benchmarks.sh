@@ -9,14 +9,20 @@ echo "Starting benchmarks execution..."
 echo "================================="
 
 for FIG in "${FIGURES[@]}"; do
-    PRE_HSL="${BENCHMARK_BASE}/${FIG}/loop-invariant.hsl"
-    POST_HSL="${BENCHMARK_BASE}/${FIG}/post.hsl"
+    PRE="${BENCHMARK_BASE}/${FIG}/pre_.lsta"
+    POST="${BENCHMARK_BASE}/${FIG}/post_.lsta"
+    CIRCUIT="${BENCHMARK_BASE}/${FIG}/circuit_.qasm"
     
-    if [[ -f "$PRE_HSL" && -f "$POST_HSL" ]]; then
+    if [[ -f "$PRE" && -f "$POST" ]]; then
         # Run the command and extract the last meaningful line
-        echo "$AUTOQ_BIN" ver "$PRE_HSL" _.qasm "$POST_HSL"
-        RESULT=$("$AUTOQ_BIN" ver "$PRE_HSL" _.qasm "$POST_HSL" 2>/dev/null | tail -n 1)
+        # echo "$AUTOQ_BIN" ver "$PRE" "$CIRCUIT" "$POST"
+        RESULT=$("$AUTOQ_BIN" ver "$PRE" "$CIRCUIT" "$POST" 2>/dev/null | tail -n 1)
         echo "${FIG} => ${RESULT}"
+        if [ -f "${BENCHMARK_BASE}/${FIG}/post_corrected.lsta" ]; then
+            POST="${BENCHMARK_BASE}/${FIG}/post_corrected.lsta"
+            RESULT=$("$AUTOQ_BIN" ver "$PRE" "$CIRCUIT" "$POST" 2>/dev/null | tail -n 1)
+            echo "${FIG} => ${RESULT}"
+        fi
     else
         echo "${FIG} => Error: Missing hls files"
     fi
