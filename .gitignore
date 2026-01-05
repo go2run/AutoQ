@@ -32,3 +32,4 @@ benchmark*/_others/**
 test_eq/**
 **/.DS_Store
 .cache/**
+py

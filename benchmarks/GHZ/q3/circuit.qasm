@@ -7,8 +7,8 @@ h qb[0];
 h qb[1];
 h qb[2];
 
-cz qb[0], qb[1];
 cz qb[1], qb[2];
+cz qb[0], qb[1];
 
 h qb[1];
 

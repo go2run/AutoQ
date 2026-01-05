@@ -19,3 +19,7 @@ test: create_folder
 
 clean: create_folder
 	cd $(BUILD_DIR) && rm -rf *
+
+generate_scripts:
+	
+	
