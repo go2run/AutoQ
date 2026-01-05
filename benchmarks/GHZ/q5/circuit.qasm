@@ -1,4 +1,4 @@
-OPENQASM 3;
+OPENQASM 3.0;
 include "stdgates.inc";
 qubit[5] qb;
 bit[5] outcome;
@@ -18,10 +18,7 @@ cz qb[2], qb[3];
 h qb[1];
 h qb[3];
 
-
 outcome[1] = measure qb[1];
-
-
 if (!outcome[1]) {
     cx qb[1], qb[2];
 }
@@ -31,7 +28,6 @@ else {
 }
 
 outcome[3] = measure qb[3];
-
 if (!outcome[3]) {
     cx qb[3], qb[4];
 }
@@ -39,7 +35,6 @@ else {
     cx qb[3], qb[4];
     x qb[3];
 }
-
 
 cx qb[2], qb[1];
 cx qb[4], qb[3];

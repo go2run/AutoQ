@@ -14,6 +14,7 @@ h qb[6];
 cz qb[1], qb[2];
 cz qb[3], qb[4];
 cz qb[5], qb[6];
+
 cz qb[0], qb[1];
 cz qb[2], qb[3];
 cz qb[4], qb[5];

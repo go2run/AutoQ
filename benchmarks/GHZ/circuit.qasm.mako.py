@@ -11,6 +11,7 @@ h qb[${i}];
 % for i in range(1, (n+1)//2):
 cz qb[${2*i-1}], qb[${2*i}];
 % endfor
+
 % for i in range(n//2):
 cz qb[${2*i}], qb[${2*i+1}];
 % endfor
