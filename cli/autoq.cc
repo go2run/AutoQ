@@ -353,6 +353,8 @@ int main(int argc, char **argv) {
                // 32 MB
                // aut.print_language("PRE:\n");
                // spec.print_language("SPEC:\n");
+               // aut.print_aut("A:_\n");
+               // spec.print_aut("B:_\n");
                bool verify = aut.execute(circuit, qp, autVec, params);
                // 34 or 35 MB
                // std::cout << "OUTPUT AUTOMATON:\n";
@@ -361,9 +363,11 @@ int main(int argc, char **argv) {
                // autMinus.value().print_aut("AUT-MINUS:\n");
                // aut.print_language("OUTPUT:\n");
                // std::cout << "=================\n";
-               aut.print_aut("A_:\n");
-               spec.print_aut("B_:\n");
                verify &= (aut <<= spec); // && (autMinus ? ((aut && (*autMinus)).empty()) : true);
+               aut.print_aut("A_:print_aut\n");
+               aut.print_language("A_:print_language\n");
+               spec.print_aut("B_:print_aut\n");
+               spec.print_language("B_:print_language\n");
                // 34 or 35 or 36 MB
                //goto LLL;
                if (latex) {

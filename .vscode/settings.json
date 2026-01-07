@@ -28,7 +28,6 @@
         "docs": true,
         "build": true,
         "demo": true,
-        "include": true,
         "py": true
     }
 }
