@@ -37,5 +37,3 @@ h qb[0];
 x qb[0]; // Failure flips the ancilla.
 outcome[0] = measure qb[0];
 }
-
-// outcome = measure qb;

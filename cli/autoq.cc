@@ -364,9 +364,9 @@ int main(int argc, char **argv) {
                // aut.print_language("OUTPUT:\n");
                // std::cout << "=================\n";
                verify &= (aut <<= spec); // && (autMinus ? ((aut && (*autMinus)).empty()) : true);
-               aut.print_aut("A_:print_aut\n");
+               aut.print_aut("\nA_:print_aut\n");
                aut.print_language("A_:print_language\n");
-               spec.print_aut("B_:print_aut\n");
+               spec.print_aut("\nB_:print_aut\n");
                spec.print_language("B_:print_language\n");
                // 34 or 35 or 36 MB
                //goto LLL;

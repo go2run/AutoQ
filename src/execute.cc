@@ -131,13 +131,13 @@ bool AUTOQ::Automata<Symbol>::execute(const char *filename, std::vector<int> qub
             this->remove_useless(); this->reduce(); I.remove_useless(); I.reduce();
             bool t = (*this <<= I);
             verify &= t;
-            print_aut("C(P).aut:\n\n");
-            print_language("C(P):\n\n");
+            print_aut("\nC(P)_aut:\n");
+            print_language("\nC(P)_lang:\n");
             if (!t) {
                 AUTOQ_ERROR("[ERROR] C(P) ⊈ I.");
                 fraction_simplification();
                 I.fraction_simplification();
-                I.print_language("I:\n");
+                I.print_language("\nI_lang:\n");
             // } else {
             //     std::cout << "[OK] C(P) ⊆ I." << std::endl;
             }
@@ -170,9 +170,9 @@ bool AUTOQ::Automata<Symbol>::execute(const char *filename, std::vector<int> qub
                 if (!t) {
                     AUTOQ_ERROR("[ERROR] C(measure_to_continue(I)) ⊈ I.");
                     fraction_simplification();
-                    print_language("C(measure_to_continue(I)):\n");
+                    print_language("\nC(measure_to_continue(I))_lang:\n");
                     I.fraction_simplification();
-                    I.print_language("I:\n");
+                    I.print_language("\nI_lang:\n");
                 // } else {
                 //     std::cout << "[OK] C(measure_to_continue(I)) ⊆ I." << std::endl;
                 }
