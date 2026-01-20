@@ -138,6 +138,7 @@ bool AUTOQ::Automata<Symbol>::execute(const char *filename, std::vector<int> qub
                 fraction_simplification();
                 I.fraction_simplification();
                 I.print_language("\nI_lang:\n");
+                I.print_aut("\nI_aut:\n");
             // } else {
             //     std::cout << "[OK] C(P) ⊆ I." << std::endl;
             }
