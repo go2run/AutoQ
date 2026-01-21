@@ -13,7 +13,7 @@ h qb[0];
 x qb[0]; // Failure flips the ancilla.
 
 outcome[0] = measure qb[0];
-while (!outcome[0]) { // loop-invariant1.hsl
+while (!outcome[0]) { // loop-invariant81.hsl
 h qb[0];
 t qb[0];
 cx qb[0], qb[1];
@@ -39,7 +39,7 @@ h qb[0];
 x qb[0]; // Failure flips the ancilla.
 
 outcome[0] = measure qb[0];
-while (!outcome[0]) { // loop-invariant2.hsl
+while (!outcome[0]) { // loop-invariant82.hsl
 h qb[0];
 t qb[0];
 cx qb[0], qb[1];
