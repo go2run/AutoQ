@@ -19,7 +19,7 @@ h qb[0];
 x qb[0]; // Failure flips the ancilla.
 
 outcome[0] = measure qb[0];
-while (!outcome[0]) { // loop-invariant71.hsl
+while (!outcome[0]) { // loop-invariant71.lsta
 z qb[1]; // Failure implements Z.
 h qb[0];
 tdg qb[0];
@@ -58,7 +58,7 @@ h qb[0];
 x qb[0]; // Failure flips the ancilla.
 
 outcome[0] = measure qb[0];
-while (!outcome[0]) { // loop-invariant72.hsl
+while (!outcome[0]) { // loop-invariant72.lsta
 z qb[1]; // Failure implements Z.
 h qb[0];
 tdg qb[0];
