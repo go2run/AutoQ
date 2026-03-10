@@ -28,6 +28,8 @@
         "docs": true,
         "build": true,
         "demo": true,
-        "py": true
+        "py": true,
+        "libantlr4-runtime-4.13.2.a": true,
+        "CMakeLists.txt": true
     }
 }
