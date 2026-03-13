@@ -1,4 +1,5 @@
-FROM --platform=linux/amd64 ubuntu:24.04
+ARG TARGETPLATFORM=linux/amd64
+FROM --platform=${TARGETPLATFORM} ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="/workspace/AutoQ/build/cli:${PATH}"
