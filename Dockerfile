@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 ubuntu:22.04-slim
+FROM --platform=linux/amd64 ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="/workspace/AutoQ/build/cli:${PATH}"
