@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Configuration
-AUTOQ_BIN="/workspaces/AutoQ/build/cli/autoq"
-BENCHMARK_BASE="/workspaces/AutoQ/benchmarks/TACAS25/RUS"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AUTOQ_BIN="${AUTOQ_BIN:-${SCRIPT_DIR}/../build/cli/autoq}"
+BENCHMARK_BASE="${SCRIPT_DIR}/../benchmarks/TACAS25/RUS"
 FIGURES=("Figure7" "Figure8" "Figure9" "Figure10a" "Figure10b" "Figure10c")
 
 echo "Starting benchmarks execution..."

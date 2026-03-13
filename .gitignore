@@ -33,3 +33,10 @@ test_eq/**
 **/.DS_Store
 .cache/**
 py
+# Generated experiment results (re-run scripts to reproduce)
+table1.csv
+table2.csv
+table3.csv
+# Personal notes
+note.md
+.claude
