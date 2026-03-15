@@ -36,7 +36,7 @@ RUN make test 2>&1 | tee test.log
 RUN echo '#!/bin/bash' > /usr/local/bin/run_benchmarks.sh && \
     echo 'echo "=== Running example benchmarks ==="' >> /usr/local/bin/run_benchmarks.sh && \
     echo 'cd /workspace/AutoQ' >> /usr/local/bin/run_benchmarks.sh && \
-    echo '/workspaces/AutoQ/run.sh 2>&1' >> /usr/local/bin/run_benchmarks.sh && \
+    echo '/workspace/AutoQ/run.sh 2>&1' >> /usr/local/bin/run_benchmarks.sh && \
     echo 'echo "=== Benchmarks completed ==="' >> /usr/local/bin/run_benchmarks.sh && \
     chmod +x /usr/local/bin/run_benchmarks.sh
 
