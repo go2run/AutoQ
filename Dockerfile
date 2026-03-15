@@ -1,5 +1,5 @@
 ARG TARGETPLATFORM=linux/amd64
-FROM --platform=${TARGETPLATFORM} ubuntu:24.04
+FROM --platform=${TARGETPLATFORM} ubuntu:noble-minimal
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="/workspace/AutoQ/build/cli:${PATH}"
