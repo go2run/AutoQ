@@ -32,13 +32,5 @@ RUN make 2>&1 | tee build.log
 # Run unit tests to verify build
 RUN make test 2>&1 | tee test.log
 
-# Create a helper script to run example benchmarks
-RUN echo '#!/bin/bash' > /usr/local/bin/run_benchmarks.sh && \
-    echo 'echo "=== Running example benchmarks ==="' >> /usr/local/bin/run_benchmarks.sh && \
-    echo 'cd /workspace/AutoQ' >> /usr/local/bin/run_benchmarks.sh && \
-    echo './build/cli/autoq ver benchmarks/all/Grover/02/pre.hsl benchmarks/all/Grover/02/circuit.qasm benchmarks/all/Grover/02/post.hsl 2>&1' >> /usr/local/bin/run_benchmarks.sh && \
-    echo 'echo "=== Benchmarks completed ==="' >> /usr/local/bin/run_benchmarks.sh && \
-    chmod +x /usr/local/bin/run_benchmarks.sh
-
 # Set default command to bash with a welcome message
 CMD ["/bin/bash", "-c", "echo \"AutoQ container ready. Use 'run_benchmarks.sh' to run example benchmarks.\"; bash"]
