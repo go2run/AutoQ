@@ -31,3 +31,13 @@ POPL24/TABLES/Algorithms/*.aux
 benchmark*/_others/**
 .cache
 .DS_Store
+test_eq/**
+**/.DS_Store
+py
+# Generated experiment results (re-run scripts to reproduce)
+table1.csv
+table2.csv
+table3.csv
+# Personal notes
+note.md
+.claude
