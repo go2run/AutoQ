@@ -89,7 +89,7 @@ size_t AUTOQ::Util::getPeakRSS()
  * Returns the current resident set size (physical memory use) measured
  * in bytes, or zero if the value cannot be determined on this OS.
  */
-size_t getCurrentRSS()
+size_t AUTOQ::Util::getCurrentRSS()
 {
 #if defined(_WIN32)
     /* Windows -------------------------------------------------- */

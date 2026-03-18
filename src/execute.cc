@@ -2,6 +2,7 @@
 #include <autoq/symbol/symbolic.hh>
 #include <autoq/symbol/predicate.hh>
 #include <autoq/util/string.hh>
+#include <autoq/util/util.hh>
 // #include <autoq/util/types.hh>
 #include <autoq/loop_summarization.hh>
 #include <autoq/aut_description.hh>
@@ -466,6 +467,70 @@ void AUTOQ::Automata<Symbol>::single_gate_execute(const std::string& line, const
 //     }
 //     qasm.close();
 // }
+// Lightweight invariant type detection: reads file text without ANTLR parsing to avoid ~21MB memory spike.
+static std::string detect_invariant_type_lightweight(const std::string &filepath) {
+    std::string content = AUTOQ::Util::ReadFile(filepath);
+    if (content.find("Predicates") != std::string::npos)
+        return "Predicate";
+    if (content.find("Constraints") != std::string::npos)
+        return "Symbolic";
+    // For .lsta files: check if Constants section has entries without := (variable declarations)
+    auto cpos = content.find("Constants");
+    if (cpos != std::string::npos) {
+        size_t section_end = std::min({content.find("Extended", cpos + 9),
+                                       content.find("Root", cpos + 9),
+                                       content.find("Variable", cpos + 9)});
+        if (section_end != std::string::npos) {
+            std::istringstream ss(content.substr(cpos + 9, section_end - cpos - 9));
+            std::string line;
+            while (std::getline(ss, line)) {
+                line = AUTOQ::String::trim(line);
+                if (!line.empty() && line.find(":=") == std::string::npos)
+                    return "Symbolic";
+            }
+        }
+    }
+    // For .lsta: check leaf transitions for undefined symbols
+    if (filepath.size() > 5 && filepath.substr(filepath.size() - 5) == ".lsta") {
+        std::set<std::string> defined;
+        if (cpos != std::string::npos) {
+            size_t section_end = std::min({content.find("Extended", cpos + 9),
+                                           content.find("Root", cpos + 9),
+                                           content.find("Variable", cpos + 9)});
+            if (section_end != std::string::npos) {
+                std::istringstream ss(content.substr(cpos + 9, section_end - cpos - 9));
+                std::string line;
+                while (std::getline(ss, line)) {
+                    line = AUTOQ::String::trim(line);
+                    auto arrow = line.find(":=");
+                    if (arrow != std::string::npos)
+                        defined.insert(AUTOQ::String::trim(line.substr(0, arrow)));
+                }
+            }
+        }
+        auto tpos = content.find("Transitions");
+        if (tpos != std::string::npos) {
+            std::istringstream ss(content.substr(tpos));
+            std::string line;
+            std::regex leaf_re(R"(\[([^,\]]+),\d+\]\s*->\s*\d+)");
+            while (std::getline(ss, line)) {
+                line = AUTOQ::String::trim(line);
+                if (line.find('(') != std::string::npos || line.empty()) continue;
+                std::smatch match;
+                if (std::regex_search(line, match, leaf_re)) {
+                    std::string sym = match[1].str();
+                    bool numeric = !sym.empty();
+                    for (char c : sym)
+                        if (!std::isdigit(c) && c != '-' && c != '/' && c != '.') { numeric = false; break; }
+                    if (!numeric && defined.find(sym) == defined.end())
+                        return "Symbolic";
+                }
+            }
+        }
+    }
+    return "Concrete";
+}
+
 template <typename Symbol>
 std::string AUTOQ::Automata<Symbol>::check_the_invariants_types(const std::string& filename) {
     std::ifstream qasm(filename);
@@ -477,18 +542,16 @@ std::string AUTOQ::Automata<Symbol>::check_the_invariants_types(const std::strin
             const std::regex spec("// *(.*)");
             std::regex_iterator<std::string::iterator> it2(line.begin(), line.end(), spec);
             std::string dir = (std::filesystem::current_path() / filename).parent_path().string();
-            auto invariant = ReadAutomaton(dir + std::string("/") + it2->str(1));
-            if (std::holds_alternative<AUTOQ::PredicateAutomata>(invariant)) {
+            std::string invariant_path = dir + std::string("/") + it2->str(1);
+            std::string type = detect_invariant_type_lightweight(invariant_path);
+            if (type == "Predicate") {
                 qasm.close();
                 THROW_AUTOQ_ERROR("The loop invariant cannot be a predicate automaton.");
-            } else if (std::holds_alternative<AUTOQ::SymbolicAutomata>(invariant)) {
+            } else if (type == "Symbolic") {
                 qasm.close();
                 return "Symbolic";
-            } else if (std::holds_alternative<AUTOQ::TreeAutomata>(invariant)) {
-            } else {
-                qasm.close();
-                THROW_AUTOQ_ERROR("The provided type of the loop invariant is not supported yet.");
             }
+            // "Concrete" → continue checking other while loops
         }
     }
     qasm.close();

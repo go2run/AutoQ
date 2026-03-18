@@ -17,7 +17,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/regex.hpp>
+// boost/regex.hpp removed — unused, avoids linking boost_regex
 #pragma GCC diagnostic pop
 
 // AUTOQ headers
@@ -37,6 +37,148 @@
 
 // ANTLR4 headers
 #include "autoq/parsing/ExtendedDirac/EvaluationVisitor.h"
+
+// Lightweight constant expression parser — avoids ANTLR initialization (~21MB memory overhead).
+// Parses the format produced by FiveTuple::operator<< and similar expressions:
+//   "0", "p/q", "sqrt2*p/q", "p/q+sqrt2*r/s", "expr + i * (expr)", "i * (expr)"
+namespace {
+using Complex = AUTOQ::Complex::Complex;
+using cpp_int = boost::multiprecision::cpp_int;
+
+// Parse a rational number like "3/8", "-1/4", "7", "-3" starting at pos.
+// Returns the rational and advances pos past it.
+boost::rational<cpp_int> parse_rational(const std::string &s, size_t &pos) {
+    bool neg = false;
+    if (pos < s.size() && s[pos] == '-') { neg = true; pos++; }
+    else if (pos < s.size() && s[pos] == '+') { pos++; }
+    cpp_int num = 0;
+    while (pos < s.size() && std::isdigit(static_cast<unsigned char>(s[pos]))) {
+        num = num * 10 + (s[pos] - '0');
+        pos++;
+    }
+    if (neg) num = -num;
+    if (pos < s.size() && s[pos] == '/') {
+        pos++;
+        cpp_int den = 0;
+        while (pos < s.size() && std::isdigit(static_cast<unsigned char>(s[pos]))) {
+            den = den * 10 + (s[pos] - '0');
+            pos++;
+        }
+        return boost::rational<cpp_int>(num, den);
+    }
+    return boost::rational<cpp_int>(num);
+}
+
+// Parse a "real part" expression: sum of terms like "p/q" and "sqrt2*p/q"
+// Returns a Complex value (real_plain + sqrt2 * real_sqrt2_coeff)
+Complex parse_real_expr(const std::string &s, size_t &pos) {
+    Complex result = Complex::Zero();
+    bool first = true;
+    while (pos < s.size()) {
+        // Check for end conditions
+        if (s[pos] == ')') break;
+        // Check for " + i" or " - i" (start of imaginary part at outer level)
+        // This is handled by the caller — we stop when we see it
+        // Skip whitespace
+        while (pos < s.size() && s[pos] == ' ') pos++;
+        if (pos >= s.size() || s[pos] == ')') break;
+
+        // Peek ahead for " + i *" or " - i *" pattern (signals imaginary part)
+        if (!first) {
+            size_t save = pos;
+            if (pos + 4 < s.size()) {
+                // check for "+ i *" or "- i *"  or "i *"
+                std::string ahead = s.substr(pos, std::min<size_t>(7, s.size() - pos));
+                if (ahead.find("i *") != std::string::npos || ahead.find("i *") != std::string::npos) {
+                    // Check if this is really the imaginary marker
+                    size_t ipos = s.find("i *", pos);
+                    if (ipos != std::string::npos && ipos - pos <= 4) {
+                        // It's the imaginary part — rewind and return
+                        pos = save;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (pos < s.size() && s.substr(pos, 5) == "sqrt2") {
+            pos += 5;
+            if (pos < s.size() && s[pos] == '*') pos++;
+            auto coeff = parse_rational(s, pos);
+            result = result + Complex::sqrt2() * Complex(coeff);
+        }
+        else if (pos < s.size() && (std::isdigit(static_cast<unsigned char>(s[pos])) || s[pos] == '-' || s[pos] == '+')) {
+            // Could be "p/q" optionally followed by "+sqrt2*..."
+            auto val = parse_rational(s, pos);
+            result = result + Complex(val);
+        }
+        else {
+            break;
+        }
+        first = false;
+    }
+    return result;
+}
+
+// Parse a full complex constant expression.
+Complex parseComplexLightweight(const std::string &input) {
+    std::string s = input;
+    // Remove all spaces for easier parsing, but preserve " + i * (" pattern
+    // Actually, let's work with the original string and handle spaces
+    size_t pos = 0;
+
+    // Skip leading whitespace
+    while (pos < s.size() && s[pos] == ' ') pos++;
+
+    if (pos >= s.size()) return Complex::Zero();
+
+    // Special case: just "0"
+    if (s == "0") return Complex::Zero();
+
+    // Check if it starts with "i * (" — purely imaginary
+    if (s.substr(pos, 4) == "i * ") {
+        pos += 4;
+        if (pos < s.size() && s[pos] == '(') pos++; // skip '('
+        Complex imag_part = parse_real_expr(s, pos);
+        if (pos < s.size() && s[pos] == ')') pos++;
+        // i = Angle(1/4)
+        return Complex::Angle(boost::rational<cpp_int>(1, 4)) * imag_part;
+    }
+    if (s.substr(pos, 2) == "i " || (s.size() - pos == 1 && s[pos] == 'i')) {
+        // "i * expr" without parens — shouldn't happen in our format but handle it
+        return Complex::Angle(boost::rational<cpp_int>(1, 4));
+    }
+
+    // Parse real part
+    Complex real_part = parse_real_expr(s, pos);
+
+    // Check for imaginary part: " + i * (" or " + i * "
+    while (pos < s.size() && s[pos] == ' ') pos++;
+    if (pos < s.size() && (s[pos] == '+' || s[pos] == '-')) {
+        size_t save = pos;
+        bool neg_imag = (s[pos] == '-');
+        pos++;
+        while (pos < s.size() && s[pos] == ' ') pos++;
+        if (pos + 3 <= s.size() && s.substr(pos, 4) == "i * ") {
+            pos += 4;
+            if (pos < s.size() && s[pos] == '(') pos++; // skip '('
+            Complex imag_part = parse_real_expr(s, pos);
+            if (pos < s.size() && s[pos] == ')') pos++;
+            Complex i_unit = Complex::Angle(boost::rational<cpp_int>(1, 4));
+            if (neg_imag)
+                return real_part - i_unit * imag_part;
+            else
+                return real_part + i_unit * imag_part;
+        }
+        else {
+            // Not imaginary part — was part of real expression, rewind
+            pos = save;
+        }
+    }
+
+    return real_part;
+}
+} // anonymous namespace
 
 // Thanks to https://github.com/boostorg/multiprecision/issues/297
 boost::multiprecision::cpp_int bin_2_dec(const std::string_view &num) {
@@ -1573,7 +1715,7 @@ AUTOQ::Parsing::TimbukParser<Symbol, Symbol2>::ReadAutomaton(const std::string &
                      THROW_AUTOQ_ERROR("Invalid number \"" + str + "\".");
                   }
                   if (constants.find(lhs) == constants.end()) {
-                     constants[lhs] = EvaluationVisitor<>::ComplexParser(rhs).getComplex();
+                     constants[lhs] = parseComplexLightweight(rhs);
                   }
                   else {
                      THROW_AUTOQ_ERROR("The constant \"" + lhs + "\" is already defined.");
@@ -1761,7 +1903,7 @@ AUTOQ::Parsing::TimbukParser<Symbol, Symbol2>::ReadTwoAutomata(const std::string
                         THROW_AUTOQ_ERROR("Invalid number \"" + str + "\".");
                      }
                      if (constants[i].find(lhs) == constants[i].end()) {
-                        constants[i][lhs] = EvaluationVisitor<>::ComplexParser(rhs).getComplex();
+                        constants[i][lhs] = parseComplexLightweight(rhs);
                      }
                      else {
                         THROW_AUTOQ_ERROR("The constant \"" + lhs + "\" is already defined.");
@@ -1933,6 +2075,31 @@ ReadPossiblyPredicateAutomaton(const std::string &filepath) {
       return aut;
    else
       return AUTOQ::Parsing::TimbukParser<AUTOQ::Symbol::Predicate>::ReadAutomaton(filepath);
+}
+
+AutomatonFileType DetectAutomatonType(const std::string &filepath) {
+   std::string content = AUTOQ::Util::ReadFile(filepath);
+   if (content.find("Predicates") != std::string::npos)
+      return AutomatonFileType::Predicate;
+   if (content.find("Constraints") != std::string::npos)
+      return AutomatonFileType::Symbolic;
+   // Check Constants section for variable declarations (no := means undefined symbol → Symbolic)
+   auto cpos = content.find("Constants");
+   if (cpos != std::string::npos) {
+      size_t section_end = std::min({content.find("Extended", cpos + 9),
+                                     content.find("Root", cpos + 9),
+                                     content.find("Variable", cpos + 9)});
+      if (section_end != std::string::npos) {
+         std::istringstream ss(content.substr(cpos + 9, section_end - cpos - 9));
+         std::string line;
+         while (std::getline(ss, line)) {
+            auto trimmed = AUTOQ::String::trim(line);
+            if (!trimmed.empty() && trimmed.find(":=") == std::string::npos)
+               return AutomatonFileType::Symbolic;
+         }
+      }
+   }
+   return AutomatonFileType::Concrete;
 }
 
 // https://bytefreaks.net/programming-2/c/c-undefined-reference-to-templated-class-function

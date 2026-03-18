@@ -86,5 +86,5 @@ include_directories(../include/autoq/parsing/ExtendedDirac)
 
 if (APPLE)
 elseif (UNIX)
-    target_link_libraries(lsta boost_regex)
+    # boost_regex removed — unused (all usages are commented out)
 endif ()
