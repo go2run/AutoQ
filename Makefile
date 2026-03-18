@@ -1,5 +1,6 @@
 BUILD_DIR=build
-MAKE_FLAGS=-j64
+NPROC := $(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+MAKE_FLAGS=-j$(NPROC)
 # TEST_FLAGS=-j 8
 TEST_FLAGS=--output-on-failure
 
