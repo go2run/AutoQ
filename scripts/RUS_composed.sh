@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AUTOQ_BIN="${AUTOQ_BIN:-${SCRIPT_DIR}/../build/cli/autoq}"
 BENCHMARK_BASE="${SCRIPT_DIR}/../benchmarks/TACAS25/RUS"
 
-echo "Starting ex benchmarks execution..."
-echo "==================================="
+echo "Starting Table 2 benchmarks execution..."
+echo "========================================="
 
 # Find all ex directories (including _old directories) and sort them
 # Extract numeric parts for proper sorting: Figure7_ex7, Figure7_ex8, Figure8_ex7, etc.
@@ -82,10 +82,14 @@ for sort_key in "${sorted_keys[@]}"; do
     
     if [[ -f "$PRE_FILE" && -f "$POST_FILE" && -f "$CIRCUIT_FILE" ]]; then
         # Run the command and extract the last meaningful line
-        TARGET_NAME="RUS/${EX_DIR}"
-        TARGET_NAME="${TARGET_NAME//./_}"
+        # Convert FigureX_exY to 𝑉X ◦ 𝑉Y format
+        if [[ "$EX_DIR" =~ ^Figure([0-9]+[a-z]?)_ex(.+)$ ]]; then
+            TARGET_NAME="𝑉${BASH_REMATCH[1]} ◦ 𝑉${BASH_REMATCH[2]}"
+        else
+            TARGET_NAME="RUS/${EX_DIR}"
+        fi
         RESULT=$("$AUTOQ_BIN" ver "$PRE_FILE" "$CIRCUIT_FILE" "$POST_FILE" 2>/dev/null | tail -n 1)
-        printf "%-23s => %s\n" "${TARGET_NAME}" "${RESULT}"
+        printf "%-31s => %s\n" "${TARGET_NAME}" "${RESULT}"
     else
         echo "${EX_DIR} => Error: Missing required files"
     fi

@@ -21,13 +21,13 @@ for FIG in "${FIGURES[@]}"; do
 
     if [[ -f "$PRE" && -f "$POST" ]]; then
         # Run the command and extract the last meaningful line
-        # Convert FigureX to unitary V_X format
+        # Convert FigureX to 𝑉X format
         if [[ "$FIG" =~ ^Figure([0-9]+)([a-z]?)$ ]]; then
             FIG_NUM="${BASH_REMATCH[1]}"
             FIG_SUFFIX="${BASH_REMATCH[2]}"
-            TARGET_FIG="unitary V_${FIG_NUM}${FIG_SUFFIX}"
+            TARGET_FIG="𝑉${FIG_NUM}${FIG_SUFFIX}"
         else
-            TARGET_FIG="unitary V_${FIG}"
+            TARGET_FIG="𝑉${FIG}"
         fi
         
         OUTPUT=$("$AUTOQ_BIN" ver "$PRE" "$CIRCUIT" "$POST" 2>/dev/null | tail -n 1)
@@ -51,7 +51,7 @@ for FIG in "${FIGURES[@]}"; do
         POST_CORRECTED="${BENCHMARK_BASE}/${FIG}/post_corrected.lsta"
         if [[ -f "$POST_CORRECTED" ]]; then
             OUTPUT=$("$AUTOQ_BIN" ver "$PRE" "$CIRCUIT" "$POST_CORRECTED" 2>/dev/null | tail -n 1)
-            TARGET_FIG_CORRECTED="unitary V_${FIG_NUM}${FIG_SUFFIX}_corrected"
+            TARGET_FIG_CORRECTED="𝑉${FIG_NUM}${FIG_SUFFIX}_corrected"
             
             # Parse the output using sed
             PARSED=$(echo "$OUTPUT" | sed -n 's/.*has \[\([0-9]*\)\] qubits and \[\([0-9]*\)\] gates.*process \[\([^]]*\)\] in \[\([^]]*\)\] with \[\([^]]*\)\] memory.*/\1,\2,\3,\4,\5/p')
@@ -69,7 +69,7 @@ for FIG in "${FIGURES[@]}"; do
         fi
     else
         echo "${FIG} => Error: Missing hls files"
-        echo "unitary V_${FIG},,,,," >> "$OUTPUT_FILE"
+        echo "𝑉${FIG},,,,," >> "$OUTPUT_FILE"
     fi
 done
 

@@ -77,9 +77,9 @@ for sort_key in "${sorted_keys[@]}"; do
         if [[ "$EX_DIR" =~ ^Figure([0-9]+[a-z]?)_ex(.+)$ ]]; then
             FIG_NUM="${BASH_REMATCH[1]}"
             EX_PART="${BASH_REMATCH[2]}"
-            TARGET_NAME="unitary V_${FIG_NUM}_ex${EX_PART}"
+            TARGET_NAME="𝑉${FIG_NUM} ◦ 𝑉${EX_PART}"
         else
-            TARGET_NAME="unitary V_${EX_DIR}"
+            TARGET_NAME="𝑉${EX_DIR}"
         fi
         echo "${TARGET_NAME},,,,," >> "$OUTPUT_FILE"
         continue
@@ -94,9 +94,9 @@ for sort_key in "${sorted_keys[@]}"; do
         if [[ "$EX_DIR" =~ ^Figure([0-9]+[a-z]?)_ex(.+)$ ]]; then
             FIG_NUM="${BASH_REMATCH[1]}"
             EX_PART="${BASH_REMATCH[2]}"
-            TARGET_NAME="unitary V_${FIG_NUM}_ex${EX_PART}"
+            TARGET_NAME="𝑉${FIG_NUM} ◦ 𝑉${EX_PART}"
         else
-            TARGET_NAME="unitary V_${EX_DIR}"
+            TARGET_NAME="𝑉${EX_DIR}"
         fi
         echo "${TARGET_NAME},,,,," >> "$OUTPUT_FILE"
         continue
@@ -114,16 +114,13 @@ for sort_key in "${sorted_keys[@]}"; do
         if [ -n "$PARSED" ]; then
             IFS=',' read -r qubits gates result time memory <<< "$PARSED"
             
-            # Convert ex directory name to unitary V_X format
-            # Pattern: Figure7_ex7 -> unitary V_7_ex7
-            # Pattern: Figure9_ex10a_old -> unitary V_9_ex10a_old
-            # Pattern: Figure10a_ex10b -> unitary V_10a_ex10b
+            # Convert ex directory name to 𝑉X ◦ 𝑉Y format
             if [[ "$EX_DIR" =~ ^Figure([0-9]+[a-z]?)_ex(.+)$ ]]; then
                 FIG_NUM="${BASH_REMATCH[1]}"
                 EX_PART="${BASH_REMATCH[2]}"
-                TARGET_NAME="unitary V_${FIG_NUM}_ex${EX_PART}"
+                TARGET_NAME="𝑉${FIG_NUM} ◦ 𝑉${EX_PART}"
             else
-                TARGET_NAME="unitary V_${EX_DIR}"
+                TARGET_NAME="𝑉${EX_DIR}"
             fi
             
             echo "${TARGET_NAME},${qubits},${gates},${result},${time},${memory}" >> "$OUTPUT_FILE"
@@ -134,9 +131,9 @@ for sort_key in "${sorted_keys[@]}"; do
             if [[ "$EX_DIR" =~ ^Figure([0-9]+[a-z]?)_ex(.+)$ ]]; then
                 FIG_NUM="${BASH_REMATCH[1]}"
                 EX_PART="${BASH_REMATCH[2]}"
-                TARGET_NAME="unitary V_${FIG_NUM}_ex${EX_PART}"
+                TARGET_NAME="𝑉${FIG_NUM} ◦ 𝑉${EX_PART}"
             else
-                TARGET_NAME="unitary V_${EX_DIR}"
+                TARGET_NAME="𝑉${EX_DIR}"
             fi
             echo "${TARGET_NAME},,,,," >> "$OUTPUT_FILE"
         fi
@@ -146,9 +143,9 @@ for sort_key in "${sorted_keys[@]}"; do
         if [[ "$EX_DIR" =~ ^Figure([0-9]+[a-z]?)_ex(.+)$ ]]; then
             FIG_NUM="${BASH_REMATCH[1]}"
             EX_PART="${BASH_REMATCH[2]}"
-            TARGET_NAME="unitary V_${FIG_NUM}_ex${EX_PART}"
+            TARGET_NAME="𝑉${FIG_NUM} ◦ 𝑉${EX_PART}"
         else
-            TARGET_NAME="unitary V_${EX_DIR}"
+            TARGET_NAME="𝑉${EX_DIR}"
         fi
         echo "${TARGET_NAME},,,,," >> "$OUTPUT_FILE"
     fi
